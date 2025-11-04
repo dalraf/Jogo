@@ -551,13 +551,14 @@ class ColetoraGuarani {
         collectible.element.classList.add('collected');
         
         // Atualizar pontuação
-        const points = collectible.type === 'money' ? 10 : 25;
+        const points = collectible.points;
         this.score += points;
         
-        if (collectible.type === 'money') {
-            this.moneyCount++;
-        } else {
+        const phoneItems = ['celular', 'capinhas', 'fone'];
+        if (phoneItems.includes(collectible.type)) {
             this.phoneCount++;
+        } else {
+            this.moneyCount++;
         }
         
         this.updateScore();
@@ -711,7 +712,7 @@ class ColetoraGuarani {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         // Velocidade do banco (ligeiramente mais lenta que o jogador)
-        const speed = this.isMobile() ? 1.5 : 2;
+        const speed = this.isMobile() ? 2.5 : 3;
         
         if (distance > 5) {
             // Mover banco em direção ao jogador
