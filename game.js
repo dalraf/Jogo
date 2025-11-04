@@ -460,11 +460,12 @@ class ColetoraGuarani {
     spawnCollectible() {
         if (!this.running || this.gameState !== 'playing') return;
         
-        const type = Math.random() > 0.7 ? 'phone' : 'money';
+        const item = this.items[Math.floor(Math.random() * this.items.length)];
+        const type = item.type;
         const element = document.createElement('div');
         element.className = `collectible ${type}`;
         element.dataset.type = type;
-        element.textContent = type === 'money' ? '💰' : '📱';
+        element.textContent = item.icon;
         
         // Posição aleatória
         const gameRect = this.gameArea.getBoundingClientRect();
@@ -488,6 +489,7 @@ class ColetoraGuarani {
             x: x,
             y: y,
             type: type,
+            points: item.points,
             collected: false
         };
         
