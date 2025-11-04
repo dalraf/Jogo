@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coletora Guarani - Jogo no Paraguai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="screen active">
+            <div class="card">
+                <h1>Coletora Guarani</h1>
+                <p class="subtitle">Ajude Sofia a coletar dinheiro e celulares no Paraguai!</p>
+                <div class="character-preview">
+                    <div class="character-svg">👧</div>
+                </div>
+                <button id="start-btn" class="primary-btn">Jogar Agora</button>
+                <div class="instructions">
+                    <h3>Como Jogar:</h3>
+                    <p>💰 Colete dinheiro para ganhar pontos</p>
+                    <p>📱 Colete celulares para pontos extras</p>
+                    <p>🏦 Evite o banco - ele tira sua pontuação!</p>
+                    <p>🎯 Use as setas do teclado ou toque para mover</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="game-screen" class="screen">
+            <div class="hud">
+                <div class="score-card">
+                    <span class="money-icon">💰</span>
+                    <span id="money-score">0</span>
+                </div>
+                <div class="score-card">
+                    <span class="phone-icon">📱</span>
+                    <span id="phone-score">0</span>
+                </div>
+                <div class="score-card total">
+                    <span class="total-icon">⭐</span>
+                    <span id="total-score">0</span>
+                    <span id="bank-warning" style="display: none;">🏦</span>
+                </div>
+                <button id="pause-btn" class="pause-btn">⏸️</button>
+            </div>
+            
+            <div id="game-area">
+                <div id="parallax-bg" class="parallax-background">
+                    <div class="layer sky"></div>
+                    <div class="layer buildings">
+                        <div class="building b1"></div>
+                        <div class="building b2"></div>
+                        <div class="building b3"></div>
+                        <div class="palm-tree"></div>
+                    </div>
+                    <div class="layer market">
+                        <div class="stall stall1"></div>
+                        <div class="stall stall2"></div>
+                    </div>
+                </div>
+                
+                <div id="player" class="character"></div>
+                
+                <div id="bank-chaser" class="bank-chaser">🏦</div>
+                
+                <div id="collectibles">
+                    <div class="collectible money" data-type="money">💰</div>
+                    <div class="collectible phone" data-type="phone">📱</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Pausa -->
+        <div id="pause-screen" class="screen">
+            <div class="card">
+                <h2>Jogo Pausado</h2>
+                <div class="pause-stats">
+                    <div class="stat">
+                        <span>💰 Dinheiro:</span>
+                        <span id="pause-money">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>📱 Celulares:</span>
+                        <span id="pause-phones">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>⭐ Total:</span>
+                        <span id="pause-total">0</span>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="resume-btn" class="primary-btn">Continuar</button>
+                    <button id="restart-btn" class="secondary-btn">Reiniciar</button>
+                    <button id="menu-btn" class="secondary-btn">Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Game Over -->
+        <div id="game-over-screen" class="screen">
+            <div class="card">
+                <h2>Parabéns!</h2>
+                <div class="final-stats">
+                    <div class="stat">
+                        <span>💰 Dinheiro Coletado:</span>
+                        <span id="final-money">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>📱 Celulares Coletados:</span>
+                        <span id="final-phones">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>⭐ Pontuação Total:</span>
+                        <span id="final-score">0</span>
+                    </div>
+                    <div class="stat achievement">
+                        <span>🏆 Conquista:</span>
+                        <span id="achievement">Coletora Iniciante</span>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="play-again-btn" class="primary-btn">Jogar Novamente</button>
+                    <button id="back-to-menu-btn" class="secondary-btn">Voltar ao Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
