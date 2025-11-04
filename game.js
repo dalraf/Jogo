@@ -20,6 +20,18 @@ class ColetoraGuarani {
         this.running = false;
         this.lastBankAttack = 0;
         this.bankAttackCooldown = 2000; // 2 segundos entre ataques
+        this.items = [
+            { type: 'celular', icon: '📱', points: 25 },
+            { type: 'blusa', icon: '👕', points: 15 },
+            { type: 'calca', icon: '👖', points: 20 },
+            { type: 'fone', icon: '🎧', points: 20 },
+            { type: 'cremes', icon: '🧴', points: 10 },
+            { type: 'acessorios', icon: '💍', points: 15 },
+            { type: 'infantil', icon: '🧸', points: 30 },
+            { type: 'maquiagem', icon: '💄', points: 10 },
+            { type: 'capinhas', icon: '📱', points: 5 },
+            { type: 'brincos', icon: '👂', points: 10 }
+        ];
         
         this.init();
     }
