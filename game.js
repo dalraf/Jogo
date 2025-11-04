@@ -6,8 +6,8 @@ class ColetoraGuarani {
         this.collectibles = [];
         this.gameArea = null;
         this.player = null;
-        this.bankChaser = null;
-        this.bankPosition = { x: 0, y: 0 };
+        this.bankChasers = [];
+        this.bankPositions = [];
         this.keys = {};
         this.touchStart = null;
         this.spawnInterval = null;
@@ -18,6 +18,8 @@ class ColetoraGuarani {
         this.running = false;
         this.lastBankAttack = 0;
         this.bankAttackCooldown = 2000; // 2 segundos entre ataques
+        this.bankSpeed = this.isMobile() ? 2.5 : 3;
+        this.scoreMilestone = 50;
         this.items = [
             { type: 'celular', icon: '📱', points: 25 },
             { type: 'blusa', icon: '👕', points: 15 },
@@ -47,7 +49,7 @@ class ColetoraGuarani {
     setupElements() {
         this.gameArea = document.getElementById('game-area');
         this.player = document.getElementById('player');
-        this.bankChaser = document.getElementById('bank-chaser');
+
         
         // Elementos de UI
 
@@ -249,7 +251,7 @@ class ColetoraGuarani {
         this.centerPlayer();
         
         // Inicializar banco perseguidor
-        this.initializeBankChaser();
+        this.initializeBankChasers();
         
         // Iniciar spawns
         this.startSpawning();
@@ -548,8 +550,13 @@ class ColetoraGuarani {
         
         // Atualizar pontuação
         const points = collectible.points;
+        const oldScore = this.score;
         this.score += points;
-        
+
+        if (Math.floor(this.score / this.scoreMilestone) > Math.floor(oldScore / this.scoreMilestone)) {
+            this.addBankChaser();
+            this.bankSpeed *= 1.1;
+        }
         
         this.updateScore();
         
@@ -642,30 +649,41 @@ class ColetoraGuarani {
     }
 
     // Banco perseguidor
-    initializeBankChaser() {
-        if (!this.bankChaser) return;
-        
-        // Posicionar banco longe do jogador inicialmente
+    initializeBankChasers() {
+        this.bankChasers.forEach(chaser => chaser.element.remove());
+        this.bankChasers = [];
+        this.bankPositions = [];
+        this.addBankChaser();
+    }
+
+    addBankChaser() {
+        const bankChaser = document.createElement('div');
+        bankChaser.className = 'bank-chaser';
+        bankChaser.textContent = '🏦';
+        this.gameArea.appendChild(bankChaser);
+
+        const bankPosition = { x: 0, y: 0 };
+
         const gameRect = this.gameArea.getBoundingClientRect();
         const margin = 100;
         
         if (Math.random() > 0.5) {
-            // Banco na borda esquerda
-            this.bankPosition.x = margin;
-            this.bankPosition.y = Math.random() * (gameRect.height - 100);
+            bankPosition.x = margin;
+            bankPosition.y = Math.random() * (gameRect.height - 100);
         } else {
-            // Banco na borda direita
-            this.bankPosition.x = gameRect.width - 100;
-            this.bankPosition.y = Math.random() * (gameRect.height - 100);
+            bankPosition.x = gameRect.width - 100;
+            bankPosition.y = Math.random() * (gameRect.height - 100);
         }
-        
-        this.updateBankPosition();
+
+        this.bankChasers.push({ element: bankChaser, position: bankPosition });
+        this.updateBankPosition(this.bankChasers.length - 1);
     }
 
-    updateBankPosition() {
-        if (this.bankChaser) {
-            this.bankChaser.style.left = `${this.bankPosition.x}px`;
-            this.bankChaser.style.top = `${this.bankPosition.y}px`;
+    updateBankPosition(index) {
+        const chaser = this.bankChasers[index];
+        if (chaser) {
+            chaser.element.style.left = `${chaser.position.x}px`;
+            chaser.element.style.top = `${chaser.position.y}px`;
         }
     }
 
@@ -673,7 +691,7 @@ class ColetoraGuarani {
         this.bankTimer = setInterval(() => {
             if (this.gameState !== 'playing') return;
             
-            this.moveBankChaser();
+            this.moveBankChasers();
         }, 100); // Movimento suave a cada 100ms
     }
 
@@ -684,70 +702,74 @@ class ColetoraGuarani {
         }
     }
 
-    moveBankChaser() {
-        if (!this.running || !this.bankChaser) return;
-        
-        const playerCenterX = this.playerPosition.x + this.player.offsetWidth / 2;
-        const playerCenterY = this.playerPosition.y + this.player.offsetHeight / 2;
-        const bankCenterX = this.bankPosition.x + 25;
-        const bankCenterY = this.bankPosition.y + 25;
-        
-        // Calcular direção para o jogador
-        const dx = playerCenterX - bankCenterX;
-        const dy = playerCenterY - bankCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        // Velocidade do banco (ligeiramente mais lenta que o jogador)
-        const speed = this.isMobile() ? 2.5 : 3;
-        
-        if (distance > 5) {
-            // Mover banco em direção ao jogador
-            this.bankPosition.x += (dx / distance) * speed;
-            this.bankPosition.y += (dy / distance) * speed;
+    moveBankChasers() {
+        this.bankChasers.forEach((chaser, index) => {
+            if (!this.running) return;
             
-            // Limites da tela
-            const maxX = this.gameArea.clientWidth - 50;
-            const maxY = this.gameArea.clientHeight - 50;
+            const playerCenterX = this.playerPosition.x + this.player.offsetWidth / 2;
+            const playerCenterY = this.playerPosition.y + this.player.offsetHeight / 2;
+            const bankCenterX = chaser.position.x + 25;
+            const bankCenterY = chaser.position.y + 25;
             
-            this.bankPosition.x = Math.max(0, Math.min(this.bankPosition.x, maxX));
-            this.bankPosition.y = Math.max(0, Math.min(this.bankPosition.y, maxY));
+            // Calcular direção para o jogador
+            const dx = playerCenterX - bankCenterX;
+            const dy = playerCenterY - bankCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
             
-            this.updateBankPosition();
+            // Velocidade do banco
+            const speed = this.bankSpeed;
             
-            // Adicionar classe de perseguição se estiver próximo
-            if (distance < 200) {
-                this.bankChaser.classList.add('pursuing');
-                this.showBankWarning(true);
-            } else {
-                this.bankChaser.classList.remove('pursuing');
-                this.showBankWarning(false);
+            if (distance > 5) {
+                // Mover banco em direção ao jogador
+                chaser.position.x += (dx / distance) * speed;
+                chaser.position.y += (dy / distance) * speed;
+                
+                // Limites da tela
+                const maxX = this.gameArea.clientWidth - 50;
+                const maxY = this.gameArea.clientHeight - 50;
+                
+                chaser.position.x = Math.max(0, Math.min(chaser.position.x, maxX));
+                chaser.position.y = Math.max(0, Math.min(chaser.position.y, maxY));
+                
+                this.updateBankPosition(index);
+                
+                // Adicionar classe de perseguição se estiver próximo
+                if (distance < 200) {
+                    chaser.element.classList.add('pursuing');
+                    this.showBankWarning(true);
+                } else {
+                    chaser.element.classList.remove('pursuing');
+                    this.showBankWarning(false);
+                }
             }
-        }
+        });
     }
 
     checkBankCollision() {
-        if (!this.bankChaser || !this.running) return;
-        
+        if (!this.running) return;
+
         const now = Date.now();
         if (now - this.lastBankAttack < this.bankAttackCooldown) return;
-        
-        const playerRect = this.player.getBoundingClientRect();
-        const bankRect = this.bankChaser.getBoundingClientRect();
-        
-        // Verificar sobreposição
-        const overlap = !(
-            playerRect.right < bankRect.left ||
-            playerRect.left > bankRect.right ||
-            playerRect.bottom < bankRect.top ||
-            playerRect.top > bankRect.bottom
-        );
-        
-        if (overlap) {
-            this.bankAttack();
-        }
+
+        this.bankChasers.forEach((chaser, index) => {
+            const playerRect = this.player.getBoundingClientRect();
+            const bankRect = chaser.element.getBoundingClientRect();
+            
+            // Verificar sobreposição
+            const overlap = !(
+                playerRect.right < bankRect.left ||
+                playerRect.left > bankRect.right ||
+                playerRect.bottom < bankRect.top ||
+                playerRect.top > bankRect.bottom
+            );
+            
+            if (overlap) {
+                this.bankAttack(index);
+            }
+        });
     }
 
-    bankAttack() {
+    bankAttack(index) {
         const now = Date.now();
         this.lastBankAttack = now;
         
@@ -764,30 +786,32 @@ class ColetoraGuarani {
         // Som de ataque
         this.playBankAttackSound();
         
+        const chaser = this.bankChasers[index];
         // Animação de colisão
-        this.bankChaser.classList.add('colliding');
-        setTimeout(() => this.bankChaser.classList.remove('colliding'), 300);
+        chaser.element.classList.add('colliding');
+        setTimeout(() => chaser.element.classList.remove('colliding'), 300);
         
         // Afastar banco temporariamente
         setTimeout(() => {
-            this.repositionBank();
+            this.repositionBank(index);
         }, 1000);
     }
 
-    repositionBank() {
+    repositionBank(index) {
         const gameRect = this.gameArea.getBoundingClientRect();
         const margin = 80;
+        const chaser = this.bankChasers[index];
         
         // Reposicionar banco longe do jogador
         if (Math.random() > 0.5) {
-            this.bankPosition.x = Math.random() * (gameRect.width - 100);
-            this.bankPosition.y = margin;
+            chaser.position.x = Math.random() * (gameRect.width - 100);
+            chaser.position.y = margin;
         } else {
-            this.bankPosition.x = Math.random() * (gameRect.width - 100);
-            this.bankPosition.y = gameRect.height - 80;
+            chaser.position.x = Math.random() * (gameRect.width - 100);
+            chaser.position.y = gameRect.height - 80;
         }
         
-        this.updateBankPosition();
+        this.updateBankPosition(index);
     }
 
     createBankAttackEffect() {
