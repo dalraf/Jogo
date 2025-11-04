@@ -2,8 +2,6 @@ class ColetoraGuarani {
     constructor() {
         this.gameState = 'start'; // start, playing, paused, gameOver
         this.score = 0;
-        this.moneyCount = 0;
-        this.phoneCount = 0;
         this.playerPosition = { x: 0, y: 0 };
         this.collectibles = [];
         this.gameArea = null;
@@ -52,8 +50,7 @@ class ColetoraGuarani {
         this.bankChaser = document.getElementById('bank-chaser');
         
         // Elementos de UI
-        this.moneyScore = document.getElementById('money-score');
-        this.phoneScore = document.getElementById('phone-score');
+
         this.totalScore = document.getElementById('total-score');
         
         // Telas
@@ -238,8 +235,7 @@ class ColetoraGuarani {
     startGame() {
         this.gameState = 'playing';
         this.score = 0;
-        this.moneyCount = 0;
-        this.phoneCount = 0;
+
         this.timeLeft = this.gameDuration;
         this.lastBankAttack = 0;
         
@@ -554,12 +550,6 @@ class ColetoraGuarani {
         const points = collectible.points;
         this.score += points;
         
-        const phoneItems = ['celular', 'capinhas', 'fone'];
-        if (phoneItems.includes(collectible.type)) {
-            this.phoneCount++;
-        } else {
-            this.moneyCount++;
-        }
         
         this.updateScore();
         
@@ -619,8 +609,6 @@ class ColetoraGuarani {
     }
 
     updateScore() {
-        if (this.moneyScore) this.moneyScore.textContent = this.moneyCount;
-        if (this.phoneScore) this.phoneScore.textContent = this.phoneCount;
         if (this.totalScore) this.totalScore.textContent = this.score;
         
         // Animação da pontuação
@@ -631,8 +619,6 @@ class ColetoraGuarani {
     }
 
     updatePauseScreen() {
-        document.getElementById('pause-money').textContent = this.moneyCount;
-        document.getElementById('pause-phones').textContent = this.phoneCount;
         document.getElementById('pause-total').textContent = this.score;
     }
 
@@ -769,14 +755,6 @@ class ColetoraGuarani {
         const deduction = Math.min(this.score, 15); // Máximo 15 pontos por ataque
         this.score = Math.max(0, this.score - deduction);
         
-        // Atualizar contadores
-        if (deduction > 0) {
-            const moneyDeduction = Math.min(this.moneyCount, Math.floor(deduction / 10));
-            const phoneDeduction = Math.floor((deduction - moneyDeduction * 10) / 25);
-            
-            this.moneyCount = Math.max(0, this.moneyCount - moneyDeduction);
-            this.phoneCount = Math.max(0, this.phoneCount - phoneDeduction);
-        }
         
         this.updateScore();
         
@@ -912,8 +890,6 @@ class ColetoraGuarani {
         this.stopBankChasing();
         
         // Atualizar tela final
-        document.getElementById('final-money').textContent = this.moneyCount;
-        document.getElementById('final-phones').textContent = this.phoneCount;
         document.getElementById('final-score').textContent = this.score;
         
         // Determinar conquista
