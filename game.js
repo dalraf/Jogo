@@ -178,7 +178,6 @@ class ColetoraGuarani {
             
             btn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                this.showMobileFeedback(dir.label);
                 startRepeat();
             });
             
@@ -194,7 +193,6 @@ class ColetoraGuarani {
             
             btn.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                this.showMobileFeedback(dir.label);
                 startRepeat();
             });
             
@@ -212,21 +210,6 @@ class ColetoraGuarani {
 
         controlsContainer.appendChild(directionalPad);
         document.body.appendChild(controlsContainer);
-    }
-
-    showMobileFeedback(direction) {
-        // Feedback visual para mobile
-        const feedback = document.createElement('div');
-        feedback.className = 'mobile-feedback';
-        feedback.textContent = `Movendo: ${direction}`;
-        
-        document.body.appendChild(feedback);
-        
-        setTimeout(() => {
-            if (feedback.parentNode) {
-                feedback.parentNode.removeChild(feedback);
-            }
-        }, 500);
     }
 
     updateMobileControlsVisibility() {
